@@ -1,12 +1,21 @@
 {
   "name": "@erickmerchant/router",
   "version": "1.0.0",
-  "main": "router.js",
+  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "standard && tap test.js",
+    "cover": "tap test.js --cov --coverage-report=html"
   },
   "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://erickmerchant@github.com/erickmerchant/router.git"
+  },
   "author": "Erick Merchant <erickmerchant@gmail.com>",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "standard": "^6.0.8",
+    "tap": "^5.7.0"
+  }
 }

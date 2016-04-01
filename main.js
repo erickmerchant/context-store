@@ -2,7 +2,10 @@ module.exports = function () {
   var map = new Map()
   var currentSymbol
 
-  return {add, match}
+  return {
+    add: add,
+    match: match
+  }
 
   function add (arr, callback) {
     var current = map

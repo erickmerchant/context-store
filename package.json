@@ -15,7 +15,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "standard": "^6.0.8",
+    "standard": "^7.0.0",
     "tap": "^5.7.0"
   }
 }

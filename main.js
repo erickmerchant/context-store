@@ -1,3 +1,7 @@
+const trim = require('lodash.trim')
+const PARAM = Symbol()
+const DATA = Symbol()
+
 module.exports = function () {
   var map = new Map()
   var currentSymbol
@@ -7,7 +11,8 @@ module.exports = function () {
     match: match
   }
 
-  function add (arr, callback) {
+  function add (path, callback) {
+    var arr = trim(path, '/').split('/')
     var current = map
 
     arr.forEach(function (key, index) {
@@ -16,7 +21,7 @@ module.exports = function () {
 
       if (key.startsWith(':')) {
         param = key.substr(1)
-        key = '*'
+        key = PARAM
       }
 
       if (current.has(key)) {
@@ -31,17 +36,22 @@ module.exports = function () {
         next.param = param
       }
 
-      if (index + 1 === arr.length) {
-        next.callback = callback
-      }
-
       current.set(key, next)
 
       current = next.map
+
+      if (index + 1 === arr.length) {
+        next.callback = callback
+
+        if (callback.length > 2) {
+          current.set(DATA, true)
+        }
+      }
     })
   }
 
-  function match (arr) {
+  function match (path, data) {
+    var arr = trim(path, '/').split('/')
     var current = map
     var params = {}
     var callback
@@ -57,8 +67,8 @@ module.exports = function () {
         callback = next.callback
 
         current = next.map
-      } else if (current.has('*')) {
-        next = current.get('*')
+      } else if (current.has(PARAM)) {
+        next = current.get(PARAM)
 
         callback = next.callback
 
@@ -72,13 +82,19 @@ module.exports = function () {
       if (result !== false && index + 1 === arr.length) {
         currentSymbol = symbol
 
-        callback(params, function (done) {
-          if (symbol === currentSymbol) {
-            if (typeof done === 'function') {
-              done()
-            }
+        if (data != null && current.has(DATA)) {
+          callback(params, data, done)
+        } else {
+          callback(params, done)
+        }
+      }
+
+      function done (done) {
+        if (symbol === currentSymbol) {
+          if (typeof done === 'function') {
+            done()
           }
-        })
+        }
       }
     })
 

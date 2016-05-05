@@ -5,13 +5,13 @@ tap.test('', function (t) {
 
   t.plan(1)
 
-  router.add(['test'], function (params, done) {
+  router.add('test', function (params, done) {
     t.ok(true)
 
     t.end()
   })
 
-  router.match(['test'])
+  router.match('test')
 })
 
 tap.test('', function (t) {
@@ -19,13 +19,13 @@ tap.test('', function (t) {
 
   t.plan(1)
 
-  router.add(['test'], function (params, done) {
+  router.add('test', function (params, done) {
     t.ok(true)
 
     t.end()
   })
 
-  router.match(['test'])
+  router.match('test')
 })
 
 tap.test('', function (t) {
@@ -33,13 +33,13 @@ tap.test('', function (t) {
 
   t.plan(1)
 
-  router.add(['test', ':id'], function (params, done) {
+  router.add('test/:id', function (params, done) {
     t.equals(params.id, '123')
 
     t.end()
   })
 
-  router.match(['test', '123'])
+  router.match('test/123')
 })
 
 tap.test('', function (t) {
@@ -47,17 +47,17 @@ tap.test('', function (t) {
 
   t.plan(1)
 
-  router.add(['test', '123'], function (params, done) {
+  router.add('test/123', function (params, done) {
     t.ok(true)
 
     t.end()
   })
 
-  router.add(['test', ':id'], function (params, done) {
+  router.add('test/:id', function (params, done) {
     t.ok(false)
   })
 
-  router.match(['test', '123'])
+  router.match('test/123')
 })
 
 tap.test('', function (t) {
@@ -65,10 +65,10 @@ tap.test('', function (t) {
 
   t.plan(0)
 
-  router.add(['test', 'abc'], function (params, done) {
+  router.add('test/abc', function (params, done) {
   })
 
-  router.match(['test', '123'])
+  router.match('test/123')
 })
 
 tap.test('', function (t) {
@@ -79,7 +79,7 @@ tap.test('', function (t) {
 
   t.plan(1)
 
-  router.add(['test', '123'], function (params, done) {
+  router.add('test/123', function (params, done) {
     process.nextTick(function () {
       done(function () {
         t.ok(false)
@@ -89,19 +89,19 @@ tap.test('', function (t) {
     })
   })
 
-  router.add(['test', 'abc', ':data'], function (params, done) {
+  router.add('test/abc', function (params, data, done) {
     process.nextTick(function () {
       done(function () {
-        t.equals(params.data, obj)
+        t.equals(data, obj)
 
         t.end()
       })
     })
   })
 
-  router.match(['test', '123'])
+  router.match('test/123')
 
-  router.match(['test', 'abc', obj])
+  router.match('test/abc', obj)
 })
 
 tap.test('', function (t) {
@@ -110,17 +110,27 @@ tap.test('', function (t) {
     abc: 123
   }
 
-  t.plan(1)
+  t.plan(3)
 
-  router.add(['test', 'abc', ':data'], function (params, done) {
+  router.add('test/:id', function (params, data, done) {
     process.nextTick(function () {
       done('afsd')
 
-      t.equals(params.data, obj)
+      t.deepEquals(data, obj)
 
-      t.end()
+      t.deepEquals(params, {id: 'abc'})
     })
   })
 
-  router.match(['test', 'abc', obj])
+  router.match('test/abc', obj)
+
+  router.add('test/:id', function (params, done) {
+    process.nextTick(function () {
+      done('afsd')
+
+      t.deepEquals(params, {id: 'abc'})
+    })
+  })
+
+  router.match('test/abc')
 })

@@ -17,5 +17,8 @@
   "devDependencies": {
     "standard": "^7.0.0",
     "tap": "^5.7.0"
+  },
+  "dependencies": {
+    "lodash.trim": "^4.3.0"
   }
 }

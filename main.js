@@ -1,6 +1,5 @@
 const trim = require('lodash.trim')
 const PARAM = Symbol()
-const DATA = Symbol()
 
 module.exports = function () {
   var map = new Map()
@@ -42,10 +41,6 @@ module.exports = function () {
 
       if (index + 1 === arr.length) {
         next.callback = callback
-
-        if (callback.length > 2) {
-          current.set(DATA, true)
-        }
       }
     })
   }
@@ -82,11 +77,7 @@ module.exports = function () {
       if (result !== false && index + 1 === arr.length) {
         currentSymbol = symbol
 
-        if (data != null && current.has(DATA)) {
-          callback(params, data, done)
-        } else {
-          callback(params, done)
-        }
+        callback(params, done)
       }
 
       function done (done) {

@@ -19,20 +19,6 @@ tap.test('', function (t) {
 
   t.plan(1)
 
-  router.add('test', function (params, done) {
-    t.ok(true)
-
-    t.end()
-  })
-
-  router.match('test')
-})
-
-tap.test('', function (t) {
-  var router = require('./main')()
-
-  t.plan(1)
-
   router.add('test/:id', function (params, done) {
     t.equals(params.id, '123')
 
@@ -73,13 +59,10 @@ tap.test('', function (t) {
 
 tap.test('', function (t) {
   var router = require('./main')()
-  var obj = {
-    abc: 123
-  }
 
   t.plan(1)
 
-  router.add('test/123', function (params, done) {
+  router.add('test/abc', function (params, done) {
     process.nextTick(function () {
       done(function () {
         t.ok(false)
@@ -89,48 +72,17 @@ tap.test('', function (t) {
     })
   })
 
-  router.add('test/abc', function (params, data, done) {
+  router.add('test/123', function (params, done) {
     process.nextTick(function () {
       done(function () {
-        t.equals(data, obj)
+        t.ok(true)
 
         t.end()
       })
     })
   })
 
-  router.match('test/123')
-
-  router.match('test/abc', obj)
-})
-
-tap.test('', function (t) {
-  var router = require('./main')()
-  var obj = {
-    abc: 123
-  }
-
-  t.plan(3)
-
-  router.add('test/:id', function (params, data, done) {
-    process.nextTick(function () {
-      done('afsd')
-
-      t.deepEquals(data, obj)
-
-      t.deepEquals(params, {id: 'abc'})
-    })
-  })
-
-  router.match('test/abc', obj)
-
-  router.add('test/:id', function (params, done) {
-    process.nextTick(function () {
-      done('afsd')
-
-      t.deepEquals(params, {id: 'abc'})
-    })
-  })
-
   router.match('test/abc')
+
+  router.match('test/123')
 })

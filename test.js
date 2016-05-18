@@ -1,88 +1,48 @@
 var tap = require('tap')
 
-tap.test('', function (t) {
+tap.test('routes should match', function (t) {
   var router = require('./main')()
+  var context
 
   t.plan(1)
 
-  router.add('test', function (params, done) {
-    t.ok(true)
+  router.add('test')
 
-    t.end()
-  })
+  context = router.match('test')
 
-  router.match('test')
+  t.equals('test', context.route)
 })
 
-tap.test('', function (t) {
+tap.test('routes should match the right thing', function (t) {
   var router = require('./main')()
+  var context
 
-  t.plan(1)
+  t.plan(2)
 
-  router.add('test/:id', function (params, done) {
-    t.equals(params.id, '123')
+  router.add('test/:id')
 
-    t.end()
-  })
+  router.add('test/abc')
 
-  router.match('test/123')
+  context = router.match('test/123')
+
+  t.equals(context.route, 'test/:id')
+
+  t.equals(context.params.id, '123')
 })
 
-tap.test('', function (t) {
+tap.test('sometimes nothing should match', function (t) {
   var router = require('./main')()
+  var context
 
-  t.plan(1)
+  t.plan(2)
 
-  router.add('test/123', function (params, done) {
-    t.ok(true)
+  router.add('test/abc/123')
 
-    t.end()
-  })
+  context = router.match('test/xyz')
 
-  router.add('test/:id', function (params, done) {
-    t.ok(false)
-  })
+  t.looseEquals(context, null)
 
-  router.match('test/123')
-})
+  context = router.match('test/abc')
 
-tap.test('', function (t) {
-  var router = require('./main')()
-
-  t.plan(0)
-
-  router.add('test/abc', function (params, done) {
-  })
-
-  router.match('test/123')
-})
-
-tap.test('', function (t) {
-  var router = require('./main')()
-
-  t.plan(1)
-
-  router.add('test/abc', function (params, done) {
-    process.nextTick(function () {
-      done(function () {
-        t.ok(false)
-
-        t.end()
-      })
-    })
-  })
-
-  router.add('test/123', function (params, done) {
-    process.nextTick(function () {
-      done(function () {
-        t.ok(true)
-
-        t.end()
-      })
-    })
-  })
-
-  router.match('test/abc')
-
-  router.match('test/123')
+  t.looseEquals(context, null)
 })

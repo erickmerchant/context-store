@@ -3,15 +3,14 @@ const PARAM = Symbol()
 
 module.exports = function () {
   var map = new Map()
-  var currentSymbol
 
   return {
     add: add,
     match: match
   }
 
-  function add (path, callback) {
-    var arr = trim(path, '/').split('/')
+  function add (route) {
+    var arr = trim(route, '/').split('/')
     var current = map
 
     arr.forEach(function (key, index) {
@@ -40,18 +39,18 @@ module.exports = function () {
       current = next.map
 
       if (index + 1 === arr.length) {
-        next.callback = callback
+        next.route = route
       }
     })
   }
 
-  function match (path, data) {
+  function match (path) {
     var arr = trim(path, '/').split('/')
     var current = map
-    var params = {}
-    var callback
-    var result = true
-    var symbol = Symbol()
+    var context = {
+      params: {},
+      route: ''
+    }
 
     arr.forEach(function (key, index) {
       var next
@@ -59,36 +58,24 @@ module.exports = function () {
       if (current.has(key)) {
         next = current.get(key)
 
-        callback = next.callback
+        context.route = next.route
 
         current = next.map
       } else if (current.has(PARAM)) {
         next = current.get(PARAM)
 
-        callback = next.callback
+        context.route = next.route
 
-        params[next.param] = key
+        context.params[next.param] = key
 
         current = next.map
-      } else {
-        result = false
-      }
-
-      if (result !== false && index + 1 === arr.length) {
-        currentSymbol = symbol
-
-        callback(params, done)
-      }
-
-      function done (done) {
-        if (symbol === currentSymbol) {
-          if (typeof done === 'function') {
-            done()
-          }
-        }
       }
     })
 
-    return result
+    if (context.route != null) {
+      return context
+    }
+
+    return null
   }
 }

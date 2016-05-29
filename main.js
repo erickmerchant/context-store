@@ -1,8 +1,12 @@
 const trim = require('lodash.trim')
 const PARAM = Symbol()
 
-module.exports = function () {
+module.exports = function (routes) {
   var map = new Map()
+
+  ;(routes || []).forEach(function (route) {
+    add(route)
+  })
 
   return {
     add: add,

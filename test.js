@@ -1,12 +1,10 @@
 var tap = require('tap')
 
 tap.test('routes should match', function (t) {
-  var router = require('./main')()
+  var router = require('./main')(['test'])
   var context
 
   t.plan(1)
-
-  router.add('test')
 
   context = router.match('test')
 

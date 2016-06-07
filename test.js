@@ -15,7 +15,7 @@ tap.test('routes should match the right thing', function (t) {
   var router = require('./main')()
   var context
 
-  t.plan(2)
+  t.plan(3)
 
   router.add('test/:id')
 
@@ -26,6 +26,10 @@ tap.test('routes should match the right thing', function (t) {
   t.equals(context.route, 'test/:id')
 
   t.equals(context.params.id, '123')
+
+  context = router.match('test/abc')
+
+  t.equals(context.route, 'test/abc')
 })
 
 tap.test('sometimes nothing should match', function (t) {
@@ -34,13 +38,13 @@ tap.test('sometimes nothing should match', function (t) {
 
   t.plan(2)
 
-  router.add('test/abc/123')
+  router.add('test/abc/def')
 
-  context = router.match('test/xyz')
+  context = router.match('test/abc')
 
   t.looseEquals(context, null)
 
-  context = router.match('test/abc')
+  context = router.match('test/abc/def/ghi')
 
   t.looseEquals(context, null)
 })

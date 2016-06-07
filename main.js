@@ -1,5 +1,6 @@
 const trim = require('lodash.trim')
 const PARAM = Symbol()
+const END = Symbol()
 
 module.exports = function (routes) {
   var map = new Map()
@@ -44,6 +45,8 @@ module.exports = function (routes) {
 
       if (index + 1 === arr.length) {
         next.route = route
+
+        current.set(END, true)
       }
     })
   }
@@ -56,10 +59,16 @@ module.exports = function (routes) {
       route: ''
     }
 
+    arr.push(END)
+
     arr.forEach(function (key, index) {
       var next
 
-      if (current.has(key)) {
+      if (key === END) {
+        if (!current.has(END)) {
+          context.route = null
+        }
+      } else if (current.has(key)) {
         next = current.get(key)
 
         context.route = next.route
@@ -73,6 +82,10 @@ module.exports = function (routes) {
         context.params[next.param] = key
 
         current = next.map
+      } else {
+        context.route = null
+
+        current = new Map()
       }
     })
 

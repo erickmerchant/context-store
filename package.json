@@ -1,6 +1,6 @@
 {
   "name": "@erickmerchant/router",
-  "version": "4.8.0",
+  "version": "4.9.0",
   "main": "dist/main.js",
   "scripts": {
     "test": "standard && tap test.js",

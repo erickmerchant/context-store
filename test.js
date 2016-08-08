@@ -1,6 +1,6 @@
-var tap = require('tap')
+var test = require('tape')
 
-tap.test('routes should match', function (t) {
+test('routes should match', function (t) {
   var router = require('./main')(['test'])
   var context
 
@@ -11,7 +11,7 @@ tap.test('routes should match', function (t) {
   t.equals('test', context.route)
 })
 
-tap.test('routes should match the right thing', function (t) {
+test('routes should match the right thing', function (t) {
   var router = require('./main')()
   var context
 
@@ -32,7 +32,7 @@ tap.test('routes should match the right thing', function (t) {
   t.equals(context.route, 'test/abc')
 })
 
-tap.test('sometimes nothing should match', function (t) {
+test('sometimes nothing should match', function (t) {
   var router = require('./main')()
   var context
 

@@ -1,50 +1,59 @@
 var test = require('tape')
 
 test('routes should match', function (t) {
-  var router = require('./main')(['test'])
-  var context
-
   t.plan(1)
 
-  context = router.match('test')
+  var router = require('./main')(function (route) {
+    route('test', function () {
+      t.ok(true)
 
-  t.equals('test', context.route)
+      return ''
+    })
+  })
+
+  router({context: {href: 'test'}})
 })
 
 test('routes should match the right thing', function (t) {
-  var router = require('./main')()
-  var context
+  t.plan(2)
 
-  t.plan(3)
+  var router = require('./main')(function (route) {
+    route('test/:id', function (args) {
+      t.equals(args.context.params.id, '123')
 
-  router.add('test/:id')
+      return ''
+    })
 
-  router.add('test/abc')
+    route('test/abc', function (args) {
+      t.ok(true)
 
-  context = router.match('test/123')
+      return ''
+    })
+  })
 
-  t.equals(context.route, 'test/:id')
+  router({context: {href: 'test/123'}})
 
-  t.equals(context.params.id, '123')
-
-  context = router.match('test/abc')
-
-  t.equals(context.route, 'test/abc')
+  router({context: {href: 'test/abc'}})
 })
 
-test('sometimes nothing should match', function (t) {
-  var router = require('./main')()
-  var context
+test('sometimes the default should match', function (t) {
+  var router = require('./main')(function (route) {
+    route('test/abc/def', function () {
+      t.ok(false)
+
+      return ''
+    })
+
+    route(function () {
+      t.ok(true)
+
+      return ''
+    })
+  })
 
   t.plan(2)
 
-  router.add('test/abc/def')
+  router({context: {href: 'test/abc'}})
 
-  context = router.match('test/abc')
-
-  t.looseEquals(context, null)
-
-  context = router.match('test/abc/def/ghi')
-
-  t.looseEquals(context, null)
+  router({context: {href: 'test/abc/def/ghi'}})
 })

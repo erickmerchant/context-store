@@ -1,63 +1,69 @@
+'use strict'
+
 const trim = require('lodash.trim')
 const PARAM = Symbol()
 const END = Symbol()
+const DEFAULT = Symbol()
 
 module.exports = function (routes) {
-  var map = new Map()
+  const map = new Map()
 
-  ;(routes || []).forEach(function (route) {
-    add(route)
-  })
+  routes(add)
 
-  return {
-    add: add,
-    match: match
-  }
+  return match
 
-  function add (route) {
-    var arr = trim(route, '/').split('/')
-    var current = map
+  function add (route, component) {
+    if (!component) {
+      map.set(DEFAULT, route)
+    } else {
+      let arr = trim(route, '/').split('/')
+      let current = map
 
-    arr.forEach(function (key, index) {
-      var next
-      var param
+      arr.forEach(function (key, index) {
+        var next
+        var param
 
-      if (key.startsWith(':')) {
-        param = key.substr(1)
-        key = PARAM
-      }
-
-      if (current.has(key)) {
-        next = current.get(key)
-      } else {
-        next = {
-          map: new Map()
+        if (key.startsWith(':')) {
+          param = key.substr(1)
+          key = PARAM
         }
-      }
 
-      if (param) {
-        next.param = param
-      }
+        if (current.has(key)) {
+          next = current.get(key)
+        } else {
+          next = {
+            map: new Map()
+          }
+        }
 
-      current.set(key, next)
+        if (param) {
+          next.param = param
+        }
 
-      current = next.map
+        current.set(key, next)
 
-      if (index + 1 === arr.length) {
-        next.route = route
+        current = next.map
 
-        current.set(END, true)
-      }
-    })
+        if (index + 1 === arr.length) {
+          next.component = component
+
+          current.set(END, true)
+        }
+      })
+    }
   }
 
-  function match (path) {
-    var arr = trim(path, '/').split('/')
-    var current = map
-    var context = {
+  function match (args) {
+    args.context = Object.assign({
       params: {},
-      route: ''
-    }
+      href: ''
+    }, args.context || {})
+
+    var href = args.context.href || ''
+    var arr = trim(href, '/').split('/')
+    var current = map
+    var component = null
+    var result = null
 
     arr.push(END)
 
@@ -66,33 +72,39 @@ module.exports = function (routes) {
 
       if (key === END) {
         if (!current.has(END)) {
-          context.route = null
+          component = null
         }
       } else if (current.has(key)) {
         next = current.get(key)
 
-        context.route = next.route
+        component = next.component
 
         current = next.map
       } else if (current.has(PARAM)) {
         next = current.get(PARAM)
 
-        context.route = next.route
+        component = next.component
 
-        context.params[next.param] = key
+        args.context.params[next.param] = key
 
         current = next.map
       } else {
-        context.route = null
+        component = null
 
         current = new Map()
       }
     })
 
-    if (context.route != null) {
-      return context
+    if (component != null) {
+      result = component(args)
     }
 
-    return null
+    if (result == null && map.has(DEFAULT)) {
+      component = map.get(DEFAULT)
+
+      result = component(args)
+    }
+
+    return result
   }
 }

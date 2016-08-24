@@ -54,12 +54,9 @@ module.exports = function (routes) {
   }
 
   function match (args) {
-    args.context = Object.assign({
-      params: {},
-      href: ''
-    }, args.context || {})
+    args.params = {}
 
-    var href = args.context.href || ''
+    var href = args.href || ''
     var arr = trim(href, '/').split('/')
     var current = map
     var component = null
@@ -85,7 +82,7 @@ module.exports = function (routes) {
 
         component = next.component
 
-        args.context.params[next.param] = key
+        args.params[next.param] = key
 
         current = next.map
       } else {

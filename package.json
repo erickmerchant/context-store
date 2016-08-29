@@ -1,6 +1,6 @@
 {
   "name": "@erickmerchant/router",
-  "version": "6.0.1",
+  "version": "6.0.2",
   "main": "dist/main.js",
   "scripts": {
     "test": "standard && tape 'test.js' | faucet",

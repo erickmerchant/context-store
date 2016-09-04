@@ -11,7 +11,7 @@ test('routes should match', function (t) {
     })
   })
 
-  router({href: 'test'})
+  router({ context: { href: 'test' } })
 })
 
 test('routes should match the right thing', function (t) {
@@ -19,7 +19,7 @@ test('routes should match the right thing', function (t) {
 
   var router = require('./main')(function (route) {
     route('test/:id', function (args) {
-      t.equals(args.params.id, '123')
+      t.equals(args.context.params.id, '123')
 
       return ''
     })
@@ -31,9 +31,9 @@ test('routes should match the right thing', function (t) {
     })
   })
 
-  router({href: 'test/123'})
+  router({ context: { href: 'test/123' } })
 
-  router({href: 'test/abc'})
+  router({ context: { href: 'test/abc' } })
 })
 
 test('sometimes the default should match', function (t) {
@@ -53,7 +53,7 @@ test('sometimes the default should match', function (t) {
 
   t.plan(2)
 
-  router({href: 'test/abc'})
+  router({ context: { href: 'test/abc' } })
 
-  router({href: 'test/abc/def/ghi'})
+  router({ context: { href: 'test/abc/def/ghi' } })
 })

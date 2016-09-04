@@ -46,6 +46,7 @@ module.exports = function (routes) {
 
         if (index + 1 === arr.length) {
           next.component = component
+          next.route = route
 
           current.set(END, true)
         }
@@ -54,13 +55,20 @@ module.exports = function (routes) {
   }
 
   function match (args) {
-    args.params = {}
-
-    var href = args.href || ''
+    var href = args.context.href || ''
     var arr = trim(href, '/').split('/')
     var current = map
     var component = null
+    var route = null
     var result = null
+    var params = {}
+    var parsed = href.match(/^(.*?)(\?.*?)?(#.*?)?$/)
+
+    args.context = {
+      pathname: parsed[1],
+      search: parsed[2],
+      hash: parsed[3]
+    }
 
     arr.push(END)
 
@@ -70,27 +78,34 @@ module.exports = function (routes) {
       if (key === END) {
         if (!current.has(END)) {
           component = null
+          route = null
         }
       } else if (current.has(key)) {
         next = current.get(key)
 
         component = next.component
+        route = next.route
 
         current = next.map
       } else if (current.has(PARAM)) {
         next = current.get(PARAM)
 
         component = next.component
+        route = next.route
 
-        args.params[next.param] = key
+        params[next.param] = key
 
         current = next.map
       } else {
         component = null
+        route = null
 
         current = new Map()
       }
     })
+
+    args.context.params = params
+    args.context.route = route
 
     if (component != null) {
       result = component(args)

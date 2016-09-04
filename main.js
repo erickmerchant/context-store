@@ -62,13 +62,6 @@ module.exports = function (routes) {
     var route = null
     var result = null
     var params = {}
-    var parsed = href.match(/^(.*?)(\?.*?)?(#.*?)?$/)
-
-    args.context = {
-      pathname: parsed[1],
-      search: parsed[2],
-      hash: parsed[3]
-    }
 
     arr.push(END)
 

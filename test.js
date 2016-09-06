@@ -6,13 +6,13 @@ test('routes should match', function (t) {
   var router = require('./main')(function (route) {
     route('test', function (args) {
       t.ok(args.context.route, 'test')
-      t.ok(args.context.href, 'test')
+      t.ok(args.context.href, 'test?aaa#bbb')
 
       return ''
     })
   })
 
-  router({ context: { href: 'test' } })
+  router({ context: { href: 'test?aaa#bbb' } })
 })
 
 test('routes should match the right thing', function (t) {
@@ -22,22 +22,22 @@ test('routes should match the right thing', function (t) {
     route('test/:id', function (args) {
       t.equals(args.context.params.id, '123')
       t.equals(args.context.route, 'test/:id')
-      t.equals(args.context.href, 'test/123')
+      t.equals(args.context.href, 'test/123?aaa#bbb')
 
       return ''
     })
 
     route('test/abc', function (args) {
       t.equals(args.context.route, 'test/abc')
-      t.equals(args.context.href, 'test/abc')
+      t.equals(args.context.href, 'test/abc?aaa#bbb')
 
       return ''
     })
   })
 
-  router({ context: { href: 'test/123' } })
+  router({ context: { href: 'test/123?aaa#bbb' } })
 
-  router({ context: { href: 'test/abc' } })
+  router({ context: { href: 'test/abc?aaa#bbb' } })
 })
 
 test('sometimes the default should match', function (t) {

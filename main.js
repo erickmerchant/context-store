@@ -1,6 +1,7 @@
 'use strict'
 
 const trim = require('lodash.trim')
+const url = require('url')
 const PARAM = Symbol()
 const END = Symbol()
 const DEFAULT = Symbol()
@@ -55,8 +56,8 @@ module.exports = function (routes) {
   }
 
   function match (args) {
-    var href = args.context.href || ''
-    var arr = trim(href, '/').split('/')
+    var pathname = url.parse(args.context.href || '').pathname
+    var arr = trim(pathname, '/').split('/')
     var current = map
     var component = null
     var route = null

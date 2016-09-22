@@ -55,8 +55,8 @@ module.exports = function (routes) {
     }
   }
 
-  function match (args) {
-    var pathname = url.parse(args.context.href || '').pathname
+  function match (href) {
+    var pathname = url.parse(href || '').pathname
     var arr = trim(pathname, '/').split('/')
     var current = map
     var component = null
@@ -98,17 +98,14 @@ module.exports = function (routes) {
       }
     })
 
-    args.context.params = params
-    args.context.route = route
-
     if (component != null) {
-      result = component(args)
+      result = component({href, params, route})
     }
 
     if (result == null && map.has(DEFAULT)) {
       component = map.get(DEFAULT)
 
-      result = component(args)
+      result = component({href, params, route})
     }
 
     return result

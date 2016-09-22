@@ -4,60 +4,70 @@ test('routes should match', function (t) {
   t.plan(2)
 
   var router = require('./main')(function (route) {
-    route('test', function (args) {
-      t.ok(args.context.route, 'test')
-      t.ok(args.context.href, 'test?aaa#bbb')
+    route('test', function (ctx) {
+      return function () {
+        t.ok(ctx.route, 'test')
+        t.ok(ctx.href, 'test?aaa#bbb')
 
-      return ''
+        return ''
+      }
     })
   })
 
-  router({ context: { href: 'test?aaa#bbb' } })
+  router('test?aaa#bbb')()
 })
 
 test('routes should match the right thing', function (t) {
   t.plan(5)
 
   var router = require('./main')(function (route) {
-    route('test/:id', function (args) {
-      t.equals(args.context.params.id, '123')
-      t.equals(args.context.route, 'test/:id')
-      t.equals(args.context.href, 'test/123?aaa#bbb')
+    route('test/:id', function (ctx) {
+      return function () {
+        t.equals(ctx.params.id, '123')
+        t.equals(ctx.route, 'test/:id')
+        t.equals(ctx.href, 'test/123?aaa#bbb')
 
-      return ''
+        return ''
+      }
     })
 
-    route('test/abc', function (args) {
-      t.equals(args.context.route, 'test/abc')
-      t.equals(args.context.href, 'test/abc?aaa#bbb')
+    route('test/abc', function (ctx) {
+      return function () {
+        t.equals(ctx.route, 'test/abc')
+        t.equals(ctx.href, 'test/abc?aaa#bbb')
 
-      return ''
+        return ''
+      }
     })
   })
 
-  router({ context: { href: 'test/123?aaa#bbb' } })
+  router('test/123?aaa#bbb')()
 
-  router({ context: { href: 'test/abc?aaa#bbb' } })
+  router('test/abc?aaa#bbb')()
 })
 
 test('sometimes the default should match', function (t) {
   t.plan(2)
 
   var router = require('./main')(function (route) {
-    route('test/abc/def', function (args) {
-      t.ok(false)
+    route('test/abc/def', function (ctx) {
+      return function () {
+        t.ok(false)
 
-      return ''
+        return ''
+      }
     })
 
-    route(function (args) {
-      t.equals(args.context.route, null)
+    route(function (ctx) {
+      return function () {
+        t.equals(ctx.route, null)
 
-      return ''
+        return ''
+      }
     })
   })
 
-  router({ context: { href: 'test/abc' } })
+  router('test/abc')()
 
-  router({ context: { href: 'test/abc/def/ghi' } })
+  router('test/abc/def/ghi')()
 })

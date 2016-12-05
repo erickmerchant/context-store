@@ -25,7 +25,5 @@
     "standard": "^8.0.0",
     "tape": "^4.6.0"
   },
-  "dependencies": {
-    "lodash.trim": "^4.3.0"
-  }
+  "dependencies": {}
 }

@@ -1,6 +1,5 @@
 'use strict'
 
-const trim = require('lodash.trim')
 const url = require('url')
 const PARAM = Symbol()
 const END = Symbol()
@@ -17,7 +16,7 @@ module.exports = function (routes) {
     if (!component) {
       map.set(DEFAULT, route)
     } else {
-      let arr = trim(route, '/').split('/')
+      let arr = segments(route)
       let current = map
 
       arr.forEach(function (key, index) {
@@ -55,9 +54,9 @@ module.exports = function (routes) {
     }
   }
 
-  function match (href) {
-    var pathname = url.parse(href || '').pathname
-    var arr = trim(pathname, '/').split('/')
+  function match (href = '') {
+    var pathname = url.parse(href).pathname
+    var arr = segments(pathname)
     var current = map
     var component = null
     var route = null
@@ -110,4 +109,16 @@ module.exports = function (routes) {
 
     return result
   }
+}
+
+function segments (str) {
+  if (str.startsWith('/')) {
+    str = str.substring(1)
+  }
+
+  if (str.endsWith('/')) {
+    str = str.substring(0, str.length - 1)
+  }
+
+  return str.split('/')
 }

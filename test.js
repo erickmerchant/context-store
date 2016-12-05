@@ -7,14 +7,14 @@ test('routes should match', function (t) {
     route('test', function (ctx) {
       return function () {
         t.ok(ctx.route, 'test')
-        t.ok(ctx.href, 'test?aaa#bbb')
+        t.ok(ctx.href, '/test/?aaa#bbb')
 
         return ''
       }
     })
   })
 
-  router('test?aaa#bbb')()
+  router('/test/?aaa#bbb')()
 })
 
 test('routes should match the right thing', function (t) {
@@ -25,7 +25,7 @@ test('routes should match the right thing', function (t) {
       return function () {
         t.equals(ctx.params.id, '123')
         t.equals(ctx.route, 'test/:id')
-        t.equals(ctx.href, 'test/123?aaa#bbb')
+        t.equals(ctx.href, '/test/123/?aaa#bbb')
 
         return ''
       }
@@ -34,16 +34,16 @@ test('routes should match the right thing', function (t) {
     route('test/abc', function (ctx) {
       return function () {
         t.equals(ctx.route, 'test/abc')
-        t.equals(ctx.href, 'test/abc?aaa#bbb')
+        t.equals(ctx.href, '/test/abc/?aaa#bbb')
 
         return ''
       }
     })
   })
 
-  router('test/123?aaa#bbb')()
+  router('/test/123/?aaa#bbb')()
 
-  router('test/abc?aaa#bbb')()
+  router('/test/abc/?aaa#bbb')()
 })
 
 test('sometimes the default should match', function (t) {
@@ -67,7 +67,7 @@ test('sometimes the default should match', function (t) {
     })
   })
 
-  router('test/abc')()
+  router('/test/abc/')()
 
-  router('test/abc/def/ghi')()
+  router('/test/abc/def/ghi/')()
 })

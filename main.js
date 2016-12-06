@@ -111,7 +111,7 @@ module.exports = function (routes) {
   }
 }
 
-function segments (str) {
+function segments (str = '') {
   if (str.startsWith('/')) {
     str = str.substring(1)
   }

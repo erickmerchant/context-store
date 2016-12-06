@@ -55,7 +55,7 @@ module.exports = function (routes) {
   }
 
   function match (href = '') {
-    var pathname = url.parse(href).pathname
+    var pathname = url.parse(href).pathname || ''
     var arr = segments(pathname)
     var current = map
     var component = null

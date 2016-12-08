@@ -16,12 +16,12 @@ module.exports = function (routes) {
     if (!component) {
       map.set(DEFAULT, route)
     } else {
-      let arr = segments(route)
+      const arr = segments(route)
       let current = map
 
       arr.forEach(function (key, index) {
-        var next
-        var param
+        let next
+        let param
 
         if (key.startsWith(':')) {
           param = key.substr(1)
@@ -55,18 +55,18 @@ module.exports = function (routes) {
   }
 
   function match (href = '') {
-    var pathname = url.parse(href).pathname || ''
-    var arr = segments(pathname)
-    var current = map
-    var component = null
-    var route = null
-    var result = null
-    var params = {}
+    const pathname = url.parse(href).pathname || ''
+    const arr = segments(pathname)
+    const params = {}
+    let current = map
+    let component = null
+    let route = null
+    let result = null
 
     arr.push(END)
 
     arr.forEach(function (key, index) {
-      var next
+      let next
 
       if (key === END) {
         if (!current.has(END)) {

@@ -1,5 +1,7 @@
 'use strict'
 
+const catchLinks = require('catch-links')
+const singlePage = require('single-page')
 const url = require('url')
 const PARAM = Symbol()
 const END = Symbol()
@@ -7,10 +9,31 @@ const DEFAULT = Symbol()
 
 module.exports = function (routes) {
   const map = new Map()
+  let started = false
+  let href
+  let show
 
   routes(add)
 
-  return match
+  return function ({state, dispatch, next}) {
+    if (!started) {
+      next(function ({target, dispatch}) {
+        show = singlePage(function (newHref) {
+          href = newHref
+
+          dispatch()
+        })
+
+        catchLinks(target, show)
+      })
+
+      started = true
+
+      return
+    }
+
+    return match({state, dispatch, next})
+  }
 
   function add (route, component) {
     if (!component) {
@@ -54,8 +77,8 @@ module.exports = function (routes) {
     }
   }
 
-  function match (href = '') {
-    const pathname = url.parse(href).pathname || ''
+  function match ({state, dispatch, next}) {
+    const pathname = url.parse(href || '').pathname || ''
     const arr = segments(pathname)
     const params = {}
     let current = map
@@ -97,14 +120,16 @@ module.exports = function (routes) {
       }
     })
 
+    const context = {href, params, route}
+
     if (component != null) {
-      result = component({href, params, route})
+      result = component({state, dispatch, next, context, show})
     }
 
     if (result == null && map.has(DEFAULT)) {
       component = map.get(DEFAULT)
 
-      result = component({href, params, route})
+      result = component({state, dispatch, next, context, show})
     }
 
     return result

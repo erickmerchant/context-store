@@ -1,73 +1,148 @@
-var test = require('tape')
+const test = require('tape')
+const mockery = require('mockery')
+const app = {
+  next: function (callback) {
+    callback({
+      dispatch: function () {}
+    })
+  },
+  dispatch: function () {}
+}
 
 test('routes should match', function (t) {
-  t.plan(2)
+  mockery.enable({
+    useCleanCache: true,
+    warnOnReplace: false,
+    warnOnUnregistered: false
+  })
 
-  var router = require('./main')(function (route) {
-    route('test', function (ctx) {
-      return function () {
-        t.ok(ctx.route, 'test')
-        t.ok(ctx.href, '/test/?aaa#bbb')
+  t.plan(4)
 
-        return ''
-      }
+  let singlePage
+
+  mockery.registerMock('single-page', function (callback) {
+    t.ok(true)
+
+    singlePage = callback
+  })
+
+  mockery.registerMock('catch-links', function (target, callback) {
+    t.ok(true)
+  })
+
+  let router = require('./main')(function (route) {
+    route('test', function ({context}) {
+      t.ok(context.route, 'test')
+      t.ok(context.href, '/test/?aaa#bbb')
+
+      return ''
     })
   })
 
-  router('/test/?aaa#bbb')()
+  router(app)
+
+  singlePage('/test/?aaa#bbb')
+
+  router(app)
+
+  mockery.disable()
 })
 
 test('routes should match the right thing', function (t) {
-  t.plan(5)
+  mockery.enable({
+    useCleanCache: true,
+    warnOnReplace: false,
+    warnOnUnregistered: false
+  })
 
-  var router = require('./main')(function (route) {
-    route('test/:id', function (ctx) {
-      return function () {
-        t.equals(ctx.params.id, '123')
-        t.equals(ctx.route, 'test/:id')
-        t.equals(ctx.href, '/test/123/?aaa#bbb')
+  t.plan(7)
 
-        return ''
-      }
+  let singlePage
+
+  mockery.registerMock('single-page', function (callback) {
+    t.ok(true)
+
+    singlePage = callback
+  })
+
+  mockery.registerMock('catch-links', function (target, callback) {
+    t.ok(true)
+  })
+
+  let router = require('./main')(function (route) {
+    route('test/:id', function ({context}) {
+      t.equals(context.params.id, '123')
+      t.equals(context.route, 'test/:id')
+      t.equals(context.href, '/test/123/?aaa#bbb')
+
+      return ''
     })
 
-    route('test/abc', function (ctx) {
-      return function () {
-        t.equals(ctx.route, 'test/abc')
-        t.equals(ctx.href, '/test/abc/?aaa#bbb')
+    route('test/abc', function ({context}) {
+      t.equals(context.route, 'test/abc')
+      t.equals(context.href, '/test/abc/?aaa#bbb')
 
-        return ''
-      }
+      return ''
     })
   })
 
-  router('/test/123/?aaa#bbb')()
+  router(app)
 
-  router('/test/abc/?aaa#bbb')()
+  singlePage('/test/123/?aaa#bbb')
+
+  router(app)
+
+  singlePage('/test/abc/?aaa#bbb')
+
+  router(app)
+
+  mockery.disable()
 })
 
 test('sometimes the default should match', function (t) {
-  t.plan(2)
+  mockery.enable({
+    useCleanCache: true,
+    warnOnReplace: false,
+    warnOnUnregistered: false
+  })
 
-  var router = require('./main')(function (route) {
-    route('test/abc/def', function (ctx) {
-      return function () {
-        t.ok(false)
+  t.plan(4)
 
-        return ''
-      }
+  let singlePage
+
+  mockery.registerMock('single-page', function (callback) {
+    t.ok(true)
+
+    singlePage = callback
+  })
+
+  mockery.registerMock('catch-links', function (target, callback) {
+    t.ok(true)
+  })
+
+  let router = require('./main')(function (route) {
+    route('test/abc/def', function () {
+      t.ok(false)
+
+      return ''
     })
 
-    route(function (ctx) {
-      return function () {
-        t.equals(ctx.route, null)
+    route(function ({context}) {
+      t.equals(context.route, null)
 
-        return ''
-      }
+      return ''
     })
   })
 
-  router('/test/abc/')()
+  router(app)
 
-  router('/test/abc/def/ghi/')()
+  singlePage('/test/abc/')
+
+  router(app)
+
+  singlePage('/test/abc/def/ghi/')
+
+  router(app)
+
+  mockery.disable()
 })

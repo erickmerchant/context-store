@@ -13,11 +13,11 @@ const store = require('./store.js')
 
 const router = require('@erickmerchant/router')
 
-const component = router(function (route) {
-  route('', require('./components/index'))
-  route('create', require('./components/create'))
-  route('edit/:id', require('./components/edit'))
-  route(require('./components/unfound'))
+const component = router(function (define) {
+  define('', require('./components/index'))
+  define('create', require('./components/create'))
+  define('edit/:id', require('./components/edit'))
+  define(require('./components/unfound'))
 })
 
 /* end relevant */
@@ -42,9 +42,9 @@ The function exported by this module.
 
 - callback: see [router callback](#router-callback)
 
-#### route
+#### define
 
-_route(route, component)_
+_define(route, component)_
 
 If the first parameter is omitted the component will be treated as the default and will match any href that doesn't match another route. The component will be called with all the usual framework arguments, but also [context](#context) and [show](#show).
 
@@ -69,6 +69,6 @@ Show is the function returned by single-page. Pass it a href to redirect to that
 
 #### router callback
 
-_callback(route)_
+_callback(define)_
 
-- route: see [route](#route)
+- define: see [define](#define)

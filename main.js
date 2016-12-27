@@ -15,7 +15,9 @@ module.exports = function (routes) {
 
   routes(add)
 
-  return function ({state, dispatch, next}) {
+  return function (app) {
+    const next = app.next
+
     if (!started) {
       next(function ({target, dispatch}) {
         show = singlePage(function (newHref) {
@@ -32,7 +34,7 @@ module.exports = function (routes) {
       return
     }
 
-    return match({state, dispatch, next})
+    return match(app)
   }
 
   function add (route, component) {
@@ -77,7 +79,7 @@ module.exports = function (routes) {
     }
   }
 
-  function match ({state, dispatch, next}) {
+  function match (app) {
     const pathname = url.parse(href || '').pathname || ''
     const arr = segments(pathname)
     const params = {}
@@ -120,16 +122,17 @@ module.exports = function (routes) {
       }
     })
 
-    const context = {href, params, route}
+    app.context = {href, params, route}
+    app.show = show
 
     if (component != null) {
-      result = component({state, dispatch, next, context, show})
+      result = component(app)
     }
 
     if (result == null && map.has(DEFAULT)) {
       component = map.get(DEFAULT)
 
-      result = component({state, dispatch, next, context, show})
+      result = component(app)
     }
 
     return result

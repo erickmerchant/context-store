@@ -59,10 +59,10 @@ module.exports = function (routes) {
           next = {
             map: new Map()
           }
-        }
 
-        if (param) {
-          next.param = param
+          if (param) {
+            next.param = param
+          }
         }
 
         current.set(key, next)

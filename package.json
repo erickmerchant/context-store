@@ -15,7 +15,7 @@
   },
   "author": "Erick Merchant <erickmerchant@gmail.com>",
   "license": "ISC",
-  "description": "A router component to use with @erickmerchant/framework.",
+  "description": "A context store to use with @erickmerchant/state-container",
   "devDependencies": {
     "babel-cli": "^6.10.1",
     "babel-preset-es2015": "^6.9.0",
@@ -26,7 +26,5 @@
     "tape": "^4.6.0"
   },
   "dependencies": {
-    "catch-links": "^2.0.1",
-    "single-page": "^1.1.0"
   }
 }

@@ -1,92 +1,56 @@
 'use strict'
 
-const catchLinks = require('catch-links')
-const singlePage = require('single-page')
-const url = require('url')
 const PARAM = Symbol()
 const END = Symbol()
-const DEFAULT = Symbol()
 
 module.exports = function (routes) {
   const map = new Map()
-  let started = false
-  let href
-  let show
 
-  routes(add)
+  routes.forEach(function (route) {
+    route = trimSlashes(route)
 
-  return function (app) {
-    const next = app.next
+    const arr = route.split('/')
+    let current = map
 
-    if (!started) {
-      next(function ({target, dispatch}) {
-        show = singlePage(function (newHref) {
-          href = newHref
+    arr.forEach(function (key, index) {
+      let next
+      let param
 
-          dispatch()
-        })
+      if (key.startsWith(':')) {
+        param = key.substr(1)
+        key = PARAM
+      }
 
-        catchLinks(target, show)
-      })
-
-      started = true
-
-      return
-    }
-
-    return match(app)
-  }
-
-  function add (route, component) {
-    if (!component) {
-      map.set(DEFAULT, route)
-    } else {
-      const arr = segments(route)
-      let current = map
-
-      arr.forEach(function (key, index) {
-        let next
-        let param
-
-        if (key.startsWith(':')) {
-          param = key.substr(1)
-          key = PARAM
+      if (current.has(key)) {
+        next = current.get(key)
+      } else {
+        next = {
+          map: new Map()
         }
 
-        if (current.has(key)) {
-          next = current.get(key)
-        } else {
-          next = {
-            map: new Map()
-          }
-
-          if (param) {
-            next.param = param
-          }
+        if (param) {
+          next.param = param
         }
+      }
 
-        current.set(key, next)
+      current.set(key, next)
 
-        current = next.map
+      current = next.map
 
-        if (index + 1 === arr.length) {
-          next.component = component
-          next.route = route
+      if (index + 1 === arr.length) {
+        next.route = route
 
-          current.set(END, true)
-        }
-      })
-    }
-  }
+        current.set(END, true)
+      }
+    })
+  })
 
-  function match (app) {
-    const pathname = url.parse(href || '').pathname || ''
-    const arr = segments(pathname)
+  return function (state = {params: {}, route: null}, href = '') {
+    href = trimSlashes(href)
+    const arr = href.split('/')
     const params = {}
     let current = map
-    let component = null
     let route = null
-    let result = null
 
     arr.push(END)
 
@@ -95,51 +59,36 @@ module.exports = function (routes) {
 
       if (key === END) {
         if (!current.has(END)) {
-          component = null
           route = null
         }
       } else if (current.has(key)) {
         next = current.get(key)
 
-        component = next.component
         route = next.route
 
         current = next.map
       } else if (current.has(PARAM)) {
         next = current.get(PARAM)
 
-        component = next.component
         route = next.route
 
         params[next.param] = key
 
         current = next.map
       } else {
-        component = null
         route = null
 
         current = new Map()
       }
     })
 
-    app.context = {href, params, route}
-    app.show = show
+    state = {params, route}
 
-    if (component != null) {
-      result = component(app)
-    }
-
-    if (result == null && map.has(DEFAULT)) {
-      component = map.get(DEFAULT)
-
-      result = component(app)
-    }
-
-    return result
+    return state
   }
 }
 
-function segments (str = '') {
+function trimSlashes (str = '') {
   if (str.startsWith('/')) {
     str = str.substring(1)
   }
@@ -148,5 +97,5 @@ function segments (str = '') {
     str = str.substring(0, str.length - 1)
   }
 
-  return str.split('/')
+  return str
 }

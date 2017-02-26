@@ -1,148 +1,49 @@
 const test = require('tape')
-const mockery = require('mockery')
-const app = {
-  next: function (callback) {
-    callback({
-      dispatch: function () {}
-    })
-  },
-  dispatch: function () {}
-}
 
 test('routes should match', function (t) {
-  mockery.enable({
-    useCleanCache: true,
-    warnOnReplace: false,
-    warnOnUnregistered: false
-  })
+  t.plan(2)
 
-  t.plan(4)
+  let router = require('./main')(['test'])
 
-  let singlePage
+  let context = router(null, '/test/')
 
-  mockery.registerMock('single-page', function (callback) {
-    t.ok(true)
+  t.equals(context.route, 'test')
 
-    singlePage = callback
-  })
-
-  mockery.registerMock('catch-links', function (target, callback) {
-    t.ok(true)
-  })
-
-  let router = require('./main')(function (route) {
-    route('test', function ({context}) {
-      t.ok(context.route, 'test')
-      t.ok(context.href, '/test/?aaa#bbb')
-
-      return ''
-    })
-  })
-
-  router(app)
-
-  singlePage('/test/?aaa#bbb')
-
-  router(app)
-
-  mockery.disable()
+  t.deepEquals(context.params, {})
 })
 
 test('routes should match the right thing', function (t) {
-  mockery.enable({
-    useCleanCache: true,
-    warnOnReplace: false,
-    warnOnUnregistered: false
-  })
+  t.plan(4)
 
-  t.plan(7)
+  let router = require('./main')(['test/:id', 'test/abc'])
 
-  let singlePage
+  let context1 = router(null, '/test/123/')
 
-  mockery.registerMock('single-page', function (callback) {
-    t.ok(true)
+  t.equals(context1.route, 'test/:id')
 
-    singlePage = callback
-  })
+  t.deepEquals(context1.params, {id: '123'})
 
-  mockery.registerMock('catch-links', function (target, callback) {
-    t.ok(true)
-  })
+  let context2 = router(null, '/test/abc/')
 
-  let router = require('./main')(function (route) {
-    route('test/:id', function ({context}) {
-      t.equals(context.params.id, '123')
-      t.equals(context.route, 'test/:id')
-      t.equals(context.href, '/test/123/?aaa#bbb')
+  t.equals(context2.route, 'test/abc')
 
-      return ''
-    })
-
-    route('test/abc', function ({context}) {
-      t.equals(context.route, 'test/abc')
-      t.equals(context.href, '/test/abc/?aaa#bbb')
-
-      return ''
-    })
-  })
-
-  router(app)
-
-  singlePage('/test/123/?aaa#bbb')
-
-  router(app)
-
-  singlePage('/test/abc/?aaa#bbb')
-
-  router(app)
-
-  mockery.disable()
+  t.deepEquals(context2.params, {})
 })
 
 test('sometimes the default should match', function (t) {
-  mockery.enable({
-    useCleanCache: true,
-    warnOnReplace: false,
-    warnOnUnregistered: false
-  })
-
   t.plan(4)
 
-  let singlePage
+  let router = require('./main')(['test/abc/def'])
 
-  mockery.registerMock('single-page', function (callback) {
-    t.ok(true)
+  let context1 = router(null, '/test/abc/')
 
-    singlePage = callback
-  })
+  t.equals(context1.route, null)
 
-  mockery.registerMock('catch-links', function (target, callback) {
-    t.ok(true)
-  })
+  t.deepEquals(context1.params, {})
 
-  let router = require('./main')(function (route) {
-    route('test/abc/def', function () {
-      t.ok(false)
+  let context2 = router(null, '/test/abc/def/ghi/')
 
-      return ''
-    })
+  t.equals(context2.route, null)
 
-    route(function ({context}) {
-      t.equals(context.route, null)
-
-      return ''
-    })
-  })
-
-  router(app)
-
-  singlePage('/test/abc/')
-
-  router(app)
-
-  singlePage('/test/abc/def/ghi/')
-
-  router(app)
-
-  mockery.disable()
+  t.deepEquals(context2.params, {})
 })

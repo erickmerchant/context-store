@@ -1,7 +1,7 @@
 'use strict'
 
-const PARAM = Symbol()
-const END = Symbol()
+const PARAM = Symbol('PARAM')
+const END = Symbol('END')
 
 module.exports = function (routes) {
   const map = new Map()
